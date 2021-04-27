@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js" lang="{{ shop.locale }}">
+
+<head>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta charset="utf-8" />
+  <meta name="theme-color" content="{{ settings.color_button }}">
+  <link rel="canonical" href="{{ canonical_url }}">
+  {%- if settings.favicon != blank -%}
+  <link rel="shortcut icon" href="{{ settings.favicon | img_url: '32x32' }}" type="image/png">
+  {%- endif -%}
+
+  {%- capture seo_title -%}
+  {%- if request.page_type == 'search' and search.performed == true -%}
+  {{ 'general.search.heading' | t: count: search.results_count }}:
+  {{ 'general.search.results_with_count' | t: terms: search.terms, count: search.results_count }}
+  {%- else -%}
+  {{ page_title }}
+  {%- endif -%}
+  {%- if current_tags -%}
+  {%- assign meta_tags = current_tags | join: ', ' -%} &ndash; {{ 'general.meta.tags' | t: tags: meta_tags -}}
+  {%- endif -%}
+  {%- if current_page != 1 -%}
+  &ndash; {{ 'general.meta.page' | t: page: current_page }}
+  {%- endif -%}
+  {%- assign escaped_page_title = page_title | escape -%}
+  {%- unless escaped_page_title contains shop.name -%}
+  &ndash; {{ shop.name }}
+  {%- endunless -%}
+  {%- endcapture -%}
+  <title>{{ seo_title | strip }}</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,400;0,700;1,400;1,700&family=Open+Sans:wght@300;400;600;700;800&family=Raleway:wght@100;200;300;400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
+  {%- if page_description -%}
+    <meta name="description" content="{{ page_description | escape }}">
+  {%- endif -%}
+  {% include 'social-meta-tags' %}
+  {{ 'index.css' | asset_url | stylesheet_tag }}
+
+  <script>
+    var theme = {
+      breakpoints: {
+        medium: 750,
+        large: 990,
+        widescreen: 1400
+      },
+      strings: {
+        addToCart: {{ 'products.product.add_to_cart' | t | json }},
+        soldOut: {{ 'products.product.sold_out' | t | json }},
+        unavailable: {{ 'products.product.unavailable' | t | json }},
+        regularPrice: {{ 'products.product.regular_price' | t | json }},
+        salePrice: {{
+          'products.product.sale_price' | t | json }},
+        sale: {{ 'products.product.on_sale' | t | json }},
+        showMore: {{ 'general.filters.show_more' | t | json }},
+        showLess: {{ 'general.filters.show_less' | t | json }},
+        addressError: {{ 'sections.map.address_error' | t | json }},
+        addressNoResults: {{ 'sections.map.address_no_results' | t | json }},
+        addressQueryLimit: {{ 'sections.map.address_query_limit_html' | t | json }},
+        authError: {{ 'sections.map.auth_error_html' | t | json }},
+        newWindow: {{ 'general.accessibility.link_messages.new_window' | t | json }},
+        external: {{ 'general.accessibility.link_messages.external' | t | json }},
+        newWindowExternal: {{ 'general.accessibility.link_messages.new_window_and_external' | t | json }},
+        removeLabel: {{ 'cart.label.remove' | t: product: '[product]' | json }},
+        update: {{ 'cart.label.update' | t | json }},
+        quantity: {{ 'cart.label.quantity' | t | json }},
+        discountedTotal: {{ 'cart.label.discounted_total' | t | json }},
+        regularTotal: {{ 'cart.label.regular_total' | t | json }},
+        priceColumn: {{ 'cart.label.price_column' | t | json }},
+        quantityMinimumMessage: {{ 'products.product.quantity_minimum_message' | t | json }},
+        cartError: {{ 'cart.general.cart_error' | t | json }},
+        removedItemMessage: {{ 'cart.general.removed_item_html' | t: quantity: '[quantity]', link: '[link]' | json }},
+        unitPrice: {{ 'products.product.unit_price_label' | t | json }},
+        unitPriceSeparator: {{ 'general.accessibility.unit_price_separator' | t | json }},
+        oneCartCount: {{ 'cart.popup.cart_count' | t: count: 1 | json }},
+        otherCartCount: {{ 'cart.popup.cart_count' | t: count: '[count]' | json }},
+        quantityLabel: {{ 'cart.popup.quantity_label' | t: quantity_count: '[count]' | json }}
+      },
+      moneyFormat: {{ shop.money_format | json }},
+      moneyFormatWithCurrency: {{ shop.money_with_currency_format | json }}
+    }
+
+    document.documentElement.className = document.documentElement.className.replace('no-js', 'js');
+  </script>
+
+
+  {%- if request.page_type contains 'customers/' -%}
+    <script src="{{ 'shopify_common.js' | shopify_asset_url }}" defer="defer"></script>
+  {%- endif -%}
+
+  {{content_for_header}}
+</head>
+
+<body class="index loggedout">
+  <div id="shopify-section-announcement-bar" class="shopify-section announcement-container jsAnnouncementBar">
+    <div class="announcement-bar__container announcement-link">
+      <div class="announcement-bar is-regular" id="announcement-bar">
+        <div class="section
+                  is-width-wide">
+          <div class="message-header">
+            <div class="announcement-bar__content is-justify-center show-close-icon-false">
+              <div class="announcement-bar__text text-align-center">
+                <p><strong>Limited Time Use CATHAT15 to Save 15% + Free Shipping</strong></p>
+                <p class="buttons"></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="announcement-bar__shadow" id="announcement-bar__shadow" aria-visible="false"></div>
+    </div>
+  </div>
+  <div id="shopify-section-header__top-bar" class="shopify-section top-bar">
+  </div>
+  <div id="shopify-section-header-classic" class="shopify-section header--classic jsHeader header-section">
+    <div class="is-relative " data-enable_overlay="false" data-enable_sticky="true">
+      <header id="header" class="header dropdown-style-vertical box-shadow-true">
+        <section class="section
+                  is-width-wide">
+          <div class="container">
+            <div class="navbar is-align-center is-justify-space-between vertical-alignment-center one-whole column">
+              <div class="header__brand">
+                <h1 class="visuallyhidden">Cat Hat</h1>
+                <a class="header__logo header__link primary-logo" href="#" title="Cat Hat"> <img
+                    src="{{ 'logo-tenaciouspets.png' | asset_img_url: '300x' }}" alt="Cat Hat Logo" /></a>
+              </div>
+              <div class="header__menu is-justify-start">
+                <nav class="header__menu-items is-flex is-flex-wrap is-justify-start header__dropdown--below-parent"
+                  role="navigation" aria-label="main navigation">
+                  <div class="navbar-item header__item"> <a href="#" class="navbar-link header__link  is-arrowless">
+                      Home</a>
+                  </div>
+                  <div class="navbar-item header__item"> <a href="#" class="navbar-link header__link  is-arrowless">
+                      Products</a>
+                  </div>
+                  <div class="navbar-item header__item"> <a href="#" class="navbar-link header__link  is-arrowless">
+                      About</a>
+                  </div>
+                  <div class="navbar-item header__item"> <a href="#" class="navbar-link header__link  is-arrowless">
+                      FAQ</a>
+                  </div>
+                  <div class="navbar-item header__item"> <a href="#" class="navbar-link header__link  is-arrowless">
+                      Contact Us</a>
+                  </div>
+                </nav>
+              </div>
+              <div class="header__icons header__icon-style-icons ">
+                <div class="navbar-item header__item " data-navlink-handle="get-started"> <a href="#"
+                    class="navbar-link header__link  is-arrowless navCallout">
+                    Get Started</a>
+                </div>
+                <div class="header-cart action-area__link has-cart-count" data-ajax-cart-trigger
+                  style="display: none !important;">
+                  <a class="header__link" href="#">
+                    <span class="header-cart__icon">
+                      <span class="icon header__icon" data-icon="bag">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+                          <g id="bag">
+                            <path
+                              d="M81.34,27.06a2,2,0,0,0-2-1.89H69V22A19,19,0,1,0,31,22v3.21H20.65a2,2,0,0,0-2,1.89L14.74,94.88a2,2,0,0,0,2,2.12H83.26a2,2,0,0,0,2-2.12ZM35,22A15,15,0,1,1,65,22v3.21H35ZM18.86,93l3.68-63.83H31V46.74a2,2,0,0,0,4,0V29.17H65V46.74a2,2,0,0,0,4,0V29.17h8.5L81.14,93Z">
+                            </path>
+                          </g>
+                        </svg>
+                      </span>
+                      <span class="header-cart__count header-cart__count--badge badge" data-bind="itemCount">
+                        1</span>
+                    </span>
+                    <span class="header-cart__caption icon-caption">
+                      Cart
+                    </span>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </header>
+      <div id="mobile-header" class="mobile-header">
+        <div data-show-mobile-menu="false" class="mobile-menu__toggle-button mobile-toggle__position--left"></div>
+        <div class="mobile-header__content
+                  mobile-layout--left
+                  mobile-logo__position--center
+                  header__icon-style-icons">
+          <div class="mobile-dropdown mobile-dropdown__position--left">
+            <div class="mobile-menu__toggle-icon">
+              <div class="mobile-header__open-menu">
+                <span class="icon " data-icon="menu">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+                    <title>menu</title>
+                    <g id="menu">
+                      <path d="M95,17.75H5a2,2,0,0,1,0-4H95a2,2,0,0,1,0,4Z" />
+                      <path d="M95,52H5a2,2,0,0,1,0-4H95a2,2,0,0,1,0,4Z" />
+                      <path d="M95,86.25H5a2,2,0,0,1,0-4H95a2,2,0,0,1,0,4Z" />
+                    </g>
+                  </svg>
+                </span>
+              </div>
+              <div class="mobile-header__close-menu">
+                <span class="icon " data-icon="x">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+                    <g id="x">
+                      <path
+                        d="M52.83,50,96.41,6.41a2,2,0,0,0-2.82-2.82L50,47.17,6.41,3.59A2,2,0,0,0,3.59,6.41L47.17,50,3.59,93.59a2,2,0,1,0,2.82,2.82L50,52.83,93.59,96.41a2,2,0,0,0,2.82-2.82Z">
+                      </path>
+                    </g>
+                  </svg>
+                </span>
+              </div>
+            </div>
+            <div class="mobile-menu">
+              <div class="mobile-menu__content">
+                <ul class="has-margin-bottom">
+                  <li><a class="mobile-menu__item  mobile-reviews" href="#">Home</a></li>
+                  <li><a class="mobile-menu__item  mobile-reviews" href="#">Products</a></li>
+                  <li><a class="mobile-menu__item  mobile-reviews" href="#">About</a></li>
+                  <li><a class="mobile-menu__item  mobile-reviews" href="#">FAQ</a></li>
+                  <li><a class="mobile-menu__item  mobile-reviews" href="#">Contact Us</a></li>
+                  <li> <a class="mobile-menu__item item-with-icon getstarted" href="#">
+                      Get Started</a>
+                  </li>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="mobile-logo"> <a class="mobile-header__logo header__link primary-logo" href="#" title="Cat Hat">
+              <img src="{{ 'logo-tenaciouspets.png' | asset_img_url:"master" }}" alt="Cat Hat Logo" /></a></div>
+          <div class="mobile-icons has-one-icon">
+            <div id="mobileCart" class="header-cart action-area__link has-cart-count" data-ajax-cart-trigger>
+              <a class="header__link" href="#">
+                <span class="header-cart__icon">
+                  <span class="icon header__icon" data-icon="bag">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+                      <g id="bag">
+                        <path
+                          d="M81.34,27.06a2,2,0,0,0-2-1.89H69V22A19,19,0,1,0,31,22v3.21H20.65a2,2,0,0,0-2,1.89L14.74,94.88a2,2,0,0,0,2,2.12H83.26a2,2,0,0,0,2-2.12ZM35,22A15,15,0,1,1,65,22v3.21H35ZM18.86,93l3.68-63.83H31V46.74a2,2,0,0,0,4,0V29.17H65V46.74a2,2,0,0,0,4,0V29.17h8.5L81.14,93Z">
+                        </path>
+                      </g>
+                    </svg>
+                  </span>
+                  <span class="header-cart__count header-cart__count--badge badge" data-bind="itemCount">
+                    1</span>
+                </span>
+                <span class="header-cart__caption icon-caption">
+                  Cart
+                </span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <main class="shopify-section index-sections" data-check-for-order="true">
+    {{content_for_layout}}
+  </main>
+  <div id="shopify-section-pl-footer"
+    class="shopify-section pl-footer footer__content section is-width-wide has-background has-padding-top has-padding-bottom">
+    <div class="container has-limit is-justify-space-between" id="subFooter">
+      <div id="socialArea" class="footer__block one-fourth medium-down--one-whole column">
+        <h2 class="footer__heading">Follow Us</h2>
+        <a href="#" target="_blank"> <i class="fab fa-facebook-f"></i></a> <a href="#" target="_blank"> <i
+            class="fab fa-instagram"></i></a> <a href="#" target="_blank"> <i class="fab fa-twitter"></i></a>
+      </div>
+      <div id="featuredArticle" class="footer__block one-third medium-down--one-whole column">
+        <h2 class="footer__heading">Discover From the Blog</h2>
+        <div class="container">
+          <div class="one-fifth column"> <a href="#"> <img
+                src="{{ 'Try_These_Solutions_to_Common_Cat_Problems_Affecting_Your_Kitty2_d08992f4-038b-4a88-85fc-f6e0fe5eae42_100x.jpg' | asset_img_url:"100x" }}"
+                alt="" /></a></div>
+          <div class="four-fifths article-title column"> <a href="#">
+              Try These Solutions to Common Cat Problems Affecting Your Kitty</a>
+          </div>
+        </div>
+      </div>
+      <div id="newsletter" class="footer__block one-third medium-down--one-whole column">
+        <h2 class="footer__heading">Let's Be Friends</h2>
+        <p>
+          Get tips, spotlights, and upcoming offers/deals to your inbox
+        </p>
+        <!-- Don't remove this SUMO div, it's used by JustUno -->
+        <div id="sumoFooter"> <span
+            data-sumome-listbuilder-embed-id="b66d32f493c085e6112fe269b34d426379f2ffb7da52c82118573d77b8ae6cf5"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="shopify-section-footer__icon-bar" class="shopify-section icon-bar">
+  </div>
+  <div id="shopify-section-footer-classic" class="shopify-section footer footer--classic">
+    <style data-shopify>
+    </style>
+    <footer class="footer__container ">
+      <section class="footer__content
+               section
+               is-width-wide
+               has-background
+               has-padding-top
+               has-padding-bottom">
+        <div class="container has-limit is-justify-space-between">
+          <div id="shopify-section-1588884305009" class="footer__block block__1588884305009 block__html
+                     one-fifth
+                     medium-down--one-whole column">
+            <div id="footerContactDesktop">
+              <h2 class="footer__heading">Contact</h2>
+              <p><a href="mailto:hello@tenaciouspets.com">hello@tenaciouspets.com</a></p>
+              <h2 class="footer__heading">Chat with us:</h2>
+              <p class="chat-line">Monday-Friday, 7am-5pm PT</p>
+              &copy; 2020 Tenacious Pets
+            </div>
+            <div id="footerContactMobile">
+              <div class="footer__heading">
+                Have a Question?
+              </div>
+              <div class="container">
+                <div class="one-whole column text-align-center"> <a class="footer-btn"
+                    href="mailto:hello@tenaciouspets.com">Email</a></div>
+                <div class="one-whole column">
+                  <p class="chat-line"> <a href="hello@tenaciouspets.com">hello@tenaciouspets.com</a></p>
+                  <p class="chat-with-us"> <span>Chat with us:</span>
+                    Monday-Friday, 7am-5pm PT
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div id="shopify-section-1588884318686" class="footer__block block__1588884318686 block__link-list
+                     one-fifth
+                     medium-down--one-whole column">
+            <div class="footer__menu is-justify-space-between ">
+              <p class="footer__heading">
+                Explore
+              </p>
+              <ul>
+                <li> <a href="#" class="footer__menu-link ">
+                    FAQ</a>
+                </li>
+                <li> <a href="#" class="footer__menu-link ">
+                    Blog</a>
+                </li>
+                <li> <a href="#" class="footer__menu-link ">
+                    In The News</a>
+                </li>
+                <li> <a href="#" class="footer__menu-link ">
+                    About Us</a>
+                </li>
+                <li> <a href="#" class="footer__menu-link ">
+                    Contact Us</a>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div id="shopify-section-1588884336997" class="footer__block block__1588884336997 block__link-list
+                     one-fifth
+                     medium-down--one-whole column">
+            <div class="footer__menu is-justify-space-between ">
+              <p class="footer__heading">
+                Inquiries
+              </p>
+              <ul>
+                <li> <a href="#" class="footer__menu-link ">
+                    Become an Affiliate</a>
+                </li>
+              </ul>
+            </div>
+            <a target="_blank" href="#">
+              <div class="image-element__wrap bbb-logo" style=" max-width: 100px;"> <img alt="A+ BBB Rating"
+                  class="bbb-logo mobileBbb" src="{{ 'BBB_Logo_old_200x.png' | asset_img_url: '200x' }}" /></div>
+            </a>
+          </div>
+          <div id="shopify-section-1588884351543" class="footer__block block__1588884351543 block__html
+                     one-fifth
+                     medium-down--one-whole column"></div>
+          <div id="extraFooterBlock" class="footer_block column one-half">
+            <ul>
+              <li>
+                &copy; 2020 Tenacious Pets
+              </li>
+            </ul>
+            <a target="_blank" href="#">
+              <div class="image-element__wrap bbb-logo mobileBbb" style=" max-width: 100px;"> <img alt="A+ BBB Rating"
+                  class="bbb-logo mobileBbb" src="{{ 'BBB_Logo_old_200x.png' | asset_img_url: '200x' }}" /></div>
+            </a>
+          </div>
+          <div id="shopify-section-1588884353790" class="footer__block block__1588884353790 block__link-list
+                     one-fifth
+                     medium-down--one-whole column">
+            <div class="footer__menu is-justify-space-between ">
+              <ul>
+                <li> <a href="/pages/terms-conditions" class="footer__menu-link ">
+                    Terms of Service</a>
+                </li>
+                <li> <a href="/pages/privacy-policy" class="footer__menu-link ">
+                    Privacy Policy</a>
+                </li>
+                <li> <a href="/pages/pretty-litter-refund-policy" class="footer__menu-link ">
+                    Refund Policy</a>
+                </li>
+                <li class="acsb" data-acsb="trigger" style="cursor: pointer; display: inline-block;">
+                  Web Accessibility
+                </li>
+                <li> <a href="#" class="footer__menu-link ot-sdk-show-settings">
+                    Do Not Sell My Personal Information</a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+    </footer>
+  </div>
+  <script src="{{ 'lazysizes.js' | asset_url }}" async="async"></script>
+  <script src="{{ 'vendor.js' | asset_url }}" defer="defer"></script>
+  <script src="{{ 'theme.js' | asset_url }}" defer="defer"></script>
+  <script src="{{ 'jquery.event.move.js' | asset_url }}" defer="defer"></script>
+  <script src="{{ 'jquery.twentytwenty.js' | asset_url }}" defer="defer"></script>
+  <script src="{{ 'flickity.pkgd.min.js' | asset_url }}" defer="defer"></script>
+  <script src="{{ 'custom.js' | asset_url }}" defer="defer"></script>
+</body>
+
+</html>
